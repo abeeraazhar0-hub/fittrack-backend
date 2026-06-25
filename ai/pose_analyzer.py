@@ -4,7 +4,7 @@ import cv2
 import base64
 
 mp_pose = mp.solutions.pose
-pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
+pose = mp_pose.Pose(min_detection_confidence=0.3, min_tracking_confidence=0.3)
 
 rep_state = {}
 
@@ -25,103 +25,105 @@ def calculate_angle(a, b, c):
 
 def analyze_squat(landmarks, session_id):
     lm = landmarks
-    hip = [lm[mp_pose.PoseLandmark.LEFT_HIP.value].x,
-           lm[mp_pose.PoseLandmark.LEFT_HIP.value].y]
-    knee = [lm[mp_pose.PoseLandmark.LEFT_KNEE.value].x,
-            lm[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
-    ankle = [lm[mp_pose.PoseLandmark.LEFT_ANKLE.value].x,
-             lm[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
+    hip = [lm[mp_pose.PoseLandmark.LEFT_HIP.value].x, lm[mp_pose.PoseLandmark.LEFT_HIP.value].y]
+    knee = [lm[mp_pose.PoseLandmark.LEFT_KNEE.value].x, lm[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
+    ankle = [lm[mp_pose.PoseLandmark.LEFT_ANKLE.value].x, lm[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
     angle = calculate_angle(hip, knee, ankle)
     if session_id not in rep_state:
-        rep_state[session_id] = {"count": 0, "stage": "up", "correct": 0}
+        rep_state[session_id] = {"count": 0, "stage": "UP", "correct": 0}
     state = rep_state[session_id]
-    if angle < 90:
-        state["stage"] = "down"
-    if angle > 160 and state["stage"] == "down":
-        state["stage"] = "up"
-        state["count"] += 1
-        state["correct"] += 1
-    if angle < 90:
+    if angle > 165:
+        if state["stage"] == "DOWN":
+            state["count"] += 1
+            state["correct"] += 1
+            message = f"Rep {state['count']} done! Keep going!"
+        else:
+            message = "Stand straight, now go down into squat"
+        state["stage"] = "UP"
         status = "correct"
-        message = "Good depth! Hold for a moment"
-    elif angle < 120:
+    elif angle <= 165 and angle > 110:
         status = "correct"
-        message = "Going down, keep your back straight"
-    elif angle > 160:
+        message = "Keep going down, bend your knees more"
+    elif angle <= 110:
+        state["stage"] = "DOWN"
         status = "correct"
-        message = "Standing position, start the squat"
+        message = "Perfect depth! Now stand back up"
     else:
-        status = "incorrect"
-        message = "Go lower, aim for 90 degrees at the knee"
+        status = "correct"
+        message = "Stand straight, now go down into squat"
     accuracy = (state["correct"] / state["count"] * 100) if state["count"] > 0 else 100.0
     return status, message, state["count"], round(accuracy, 1)
 
 def analyze_pushup(landmarks, session_id):
     lm = landmarks
-    shoulder = [lm[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x,
-                lm[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
-    elbow = [lm[mp_pose.PoseLandmark.LEFT_ELBOW.value].x,
-             lm[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
-    wrist = [lm[mp_pose.PoseLandmark.LEFT_WRIST.value].x,
-             lm[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
+    shoulder = [lm[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x, lm[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+    elbow = [lm[mp_pose.PoseLandmark.LEFT_ELBOW.value].x, lm[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
+    wrist = [lm[mp_pose.PoseLandmark.LEFT_WRIST.value].x, lm[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
     angle = calculate_angle(shoulder, elbow, wrist)
     if session_id not in rep_state:
-        rep_state[session_id] = {"count": 0, "stage": "up", "correct": 0}
+        rep_state[session_id] = {"count": 0, "stage": "UP", "correct": 0}
     state = rep_state[session_id]
-    if angle < 90:
-        state["stage"] = "down"
-    if angle > 160 and state["stage"] == "down":
-        state["stage"] = "up"
-        state["count"] += 1
-        state["correct"] += 1
-    if angle < 90:
+    if angle > 160:
+        if state["stage"] == "DOWN":
+            state["count"] += 1
+            state["correct"] += 1
+            message = f"Rep {state['count']} done! Keep going!"
+        else:
+            message = "Get in pushup position, lower your body"
+        state["stage"] = "UP"
         status = "correct"
-        message = "Good! Push back up"
-    elif angle > 160:
+    elif angle < 90:
+        state["stage"] = "DOWN"
         status = "correct"
-        message = "Top position, lower your body"
+        message = "Great! Now push back up"
     else:
-        status = "incorrect"
-        message = "Keep your body straight, do not sag"
+        status = "correct"
+        message = "Keep your body straight, lower more"
     accuracy = (state["correct"] / state["count"] * 100) if state["count"] > 0 else 100.0
     return status, message, state["count"], round(accuracy, 1)
 
-def analyze_plank(landmarks, session_id):
+def analyze_bicep_curl(landmarks, session_id):
     lm = landmarks
-    shoulder = [lm[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x,
-                lm[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
-    hip = [lm[mp_pose.PoseLandmark.LEFT_HIP.value].x,
-           lm[mp_pose.PoseLandmark.LEFT_HIP.value].y]
-    ankle = [lm[mp_pose.PoseLandmark.LEFT_ANKLE.value].x,
-             lm[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
-    angle = calculate_angle(shoulder, hip, ankle)
-    if 160 < angle < 200:
-        status = "correct"
-        message = "Perfect plank! Keep holding"
-    elif angle <= 160:
-        status = "incorrect"
-        message = "Raise your hips, your body should be a straight line"
-    else:
-        status = "incorrect"
-        message = "Lower your hips, do not let them sag"
+    shoulder = [lm[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x, lm[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+    elbow = [lm[mp_pose.PoseLandmark.LEFT_ELBOW.value].x, lm[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
+    wrist = [lm[mp_pose.PoseLandmark.LEFT_WRIST.value].x, lm[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
+    angle = calculate_angle(shoulder, elbow, wrist)
     if session_id not in rep_state:
-        rep_state[session_id] = {"count": 0, "stage": "holding", "correct": 0}
-    return status, message, 0, 100.0
+        rep_state[session_id] = {"count": 0, "stage": "DOWN", "correct": 0}
+    state = rep_state[session_id]
+    if angle > 150:
+        state["stage"] = "DOWN"
+        status = "correct"
+        message = "Curl your arm up!"
+    elif angle < 50:
+        if state["stage"] == "DOWN":
+            state["count"] += 1
+            state["correct"] += 1
+            message = f"Rep {state['count']} done!"
+        else:
+            message = "Great! Now lower your arm"
+        state["stage"] = "UP"
+        status = "correct"
+    else:
+        status = "correct"
+        message = "Keep curling!"
+    accuracy = (state["correct"] / state["count"] * 100) if state["count"] > 0 else 100.0
+    return status, message, state["count"], round(accuracy, 1)
 
 def analyze_frame(frame_base64: str, exercise_id: int, session_id: int):
     frame = decode_frame(frame_base64)
     if frame is None:
-        return "incorrect", "Could not read frame", 0, 0.0
+        return "correct", "Could not read frame", 0, 100.0
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = pose.process(rgb)
     if not results.pose_landmarks:
-        return "incorrect", "No pose detected, make sure your full body is visible", 0, 0.0
+        return "incorrect", "No pose detected - show your upper body", 0, 100.0
     landmarks = results.pose_landmarks.landmark
     if exercise_id == 1:
         return analyze_squat(landmarks, session_id)
     elif exercise_id == 2:
         return analyze_pushup(landmarks, session_id)
     elif exercise_id == 3:
-        return analyze_plank(landmarks, session_id)
+        return analyze_bicep_curl(landmarks, session_id)
     else:
         return analyze_squat(landmarks, session_id)

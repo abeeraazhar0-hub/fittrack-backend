@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from database import get_db
-from models import WorkoutSession
+from models import WorkoutSession, Exercise
 from schemas import StartSessionRequest, EndSessionRequest
 from datetime import datetime
+from ai.pose_analyzer import rep_state
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 
@@ -20,9 +22,19 @@ def end_session(req: EndSessionRequest, db: Session = Depends(get_db)):
     session = db.query(WorkoutSession).filter(WorkoutSession.id == req.session_id).first()
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
+    state = rep_state.get(req.session_id, {"count": 0, "correct": 0})
+    total_reps = state.get("count", 0)
+    correct_reps = state.get("correct", 0)
     session.end_time = datetime.utcnow()
+    session.total_reps = total_reps
+    session.correct_reps = correct_reps
+    session.accuracy_percent = round(
+        (correct_reps / total_reps * 100) if total_reps > 0 else 0.0, 1
+    )
     session.duration_seconds = int((session.end_time - session.start_time).total_seconds())
     db.commit()
+    if req.session_id in rep_state:
+        del rep_state[req.session_id]
     return {
         "total_reps": session.total_reps,
         "correct_reps": session.correct_reps,
@@ -32,7 +44,10 @@ def end_session(req: EndSessionRequest, db: Session = Depends(get_db)):
 
 @router.get("/history/{user_id}")
 def get_history(user_id: int, db: Session = Depends(get_db)):
-    sessions = db.query(WorkoutSession).filter(WorkoutSession.user_id == user_id).all()
+    sessions = db.query(WorkoutSession).filter(
+        WorkoutSession.user_id == user_id,
+        WorkoutSession.end_time != None
+    ).order_by(WorkoutSession.start_time.desc()).all()
     return [
         {
             "session_id": s.id,
@@ -44,3 +59,32 @@ def get_history(user_id: int, db: Session = Depends(get_db)):
         }
         for s in sessions
     ]
+
+@router.get("/summary/{user_id}")
+def get_summary(user_id: int, db: Session = Depends(get_db)):
+    sessions = db.query(WorkoutSession).filter(
+        WorkoutSession.user_id == user_id,
+        WorkoutSession.end_time != None
+    ).all()
+
+    total_workouts = len(sessions)
+    avg_accuracy = round(
+        sum(s.accuracy_percent or 0 for s in sessions) / total_workouts, 1
+    ) if total_workouts > 0 else 0.0
+
+    reps_by_exercise = {}
+    for s in sessions:
+        name = s.exercise.name if s.exercise else "Unknown"
+        reps_by_exercise[name] = reps_by_exercise.get(name, 0) + (s.total_reps or 0)
+
+    count_by_exercise = {}
+    for s in sessions:
+        name = s.exercise.name if s.exercise else "Unknown"
+        count_by_exercise[name] = count_by_exercise.get(name, 0) + 1
+
+    return {
+        "total_workouts": total_workouts,
+        "average_accuracy": avg_accuracy,
+        "reps_by_exercise": reps_by_exercise,
+        "sessions_by_exercise": count_by_exercise
+    }

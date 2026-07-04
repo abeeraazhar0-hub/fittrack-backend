@@ -22,6 +22,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int _totalReps = 0;
   double _avgAccuracy = 0.0;
   bool _loading = true;
+  String _fitnessGoal = '';
+  String _gender = '';
 
   @override
   void initState() {
@@ -34,6 +36,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       _name = prefs.getString('name') ?? '';
       _email = prefs.getString('email') ?? '';
+      _fitnessGoal = prefs.getString('fitness_goal') ?? '';
+      _gender = prefs.getString('gender') ?? '';
     });
     try {
       final history = await ApiService.getHistory(widget.userId);
@@ -160,6 +164,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
 
+                if (_fitnessGoal.isNotEmpty)
+                  Container(
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        const Text('🎯',
+                            style: TextStyle(fontSize: 20)),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Fitness Goal',
+                                style: TextStyle(
+                                    color: Colors.grey, fontSize: 11)),
+                            Text(_fitnessGoal,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 // Menu items
                 _menuSection('Account', [
                   _menuItem(
@@ -171,7 +205,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     onTap: () async {
                       final updated = await Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const EditProfileScreen()),
+                        MaterialPageRoute(builder: (_) => EditProfileScreen(userId: widget.userId)),
                       );
                       if (updated == true) {
                         _load(); // refresh profile screen with new name

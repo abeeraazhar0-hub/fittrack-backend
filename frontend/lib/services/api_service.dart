@@ -125,4 +125,14 @@ class ApiService {
     }
     throw Exception('Failed to load summary');
   }
+  static Future<void> updateProfile(int userId, String name) async {
+    final res = await http.put(
+      Uri.parse('${Constants.baseUrl}/auth/update-profile'),
+      headers: _headers,
+      body: jsonEncode({'user_id': userId, 'name': name}),
+    );
+    if (res.statusCode != 200) {
+      throw Exception('Failed to update profile');
+    }
+  }
 }

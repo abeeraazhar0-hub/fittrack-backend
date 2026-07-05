@@ -9,6 +9,11 @@ class User(Base):
     name = Column(String)
     email = Column(String, unique=True, index=True)
     password = Column(String)
+    age = Column(Integer, nullable=True)
+    height = Column(Float, nullable=True)
+    weight = Column(Float, nullable=True)
+    gender = Column(String, nullable=True)
+    fitness_goal = Column(String, nullable=True)
     sessions = relationship("WorkoutSession", back_populates="user")
 
 class ExerciseCategory(Base):
@@ -49,3 +54,4 @@ class Feedback(Base):
     message = Column(String)
     timestamp = Column(DateTime, default=datetime.utcnow)
     session = relationship("WorkoutSession", back_populates="feedbacks")
+

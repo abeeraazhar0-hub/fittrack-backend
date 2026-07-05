@@ -171,7 +171,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     onTap: () async {
                       final updated = await Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const EditProfileScreen()),
+                        MaterialPageRoute(builder: (_) => EditProfileScreen(userId: widget.userId)),
                       );
                       if (updated == true) {
                         _load(); // refresh profile screen with new name

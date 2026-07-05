@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/api_service.dart';
 
 class EditProfileScreen extends StatefulWidget {
-  const EditProfileScreen({super.key});
+  final int userId;
+  const EditProfileScreen({super.key, required this.userId});
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -37,21 +39,28 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     setState(() => _saving = true);
 
-    // Currently saves locally only — backend update endpoint
-    // would be needed for full persistence across devices
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('name', _nameCtrl.text.trim());
+    try {
+      await ApiService.updateProfile(widget.userId, _nameCtrl.text.trim());
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('name', _nameCtrl.text.trim());
 
-    setState(() => _saving = false);
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Profile updated successfully'),
-          backgroundColor: Color(0xFF1D9E75),
-        ),
-      );
-      Navigator.pop(context, true); // return true to refresh profile screen
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profile updated successfully'),
+            backgroundColor: Color(0xFF1D9E75),
+          ),
+        );
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update: $e')),
+        );
+      }
+    } finally {
+      setState(() => _saving = false);
     }
   }
 
@@ -114,7 +123,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             const SizedBox(height: 8),
             TextField(
               controller: _emailCtrl,
-              enabled: false, // email can't be changed for now
+              enabled: false,
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.email_outlined),
                 border: OutlineInputBorder(
@@ -126,8 +135,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             const SizedBox(height: 6),
             Text(
               'Email cannot be changed for security reasons',
-              style: TextStyle(
-                  fontSize: 11, color: Colors.grey[500]),
+              style: TextStyle(fontSize: 11, color: Colors.grey[500]),
             ),
             const Spacer(),
             SizedBox(
@@ -146,8 +154,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2))
+                        color: Colors.white, strokeWidth: 2))
                     : const Text('Save Changes',
                     style: TextStyle(
                         fontSize: 16,

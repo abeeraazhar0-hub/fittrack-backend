@@ -2,10 +2,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine
 import models
+from routes import (auth_routes, exercise_routes,
+                    analyze_routes, session_routes)
 
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(title="FitTrack BI API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -15,8 +17,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from routes import auth_routes, exercise_routes, analyze_routes, session_routes
-
 app.include_router(auth_routes.router)
 app.include_router(exercise_routes.router)
 app.include_router(analyze_routes.router)
@@ -24,4 +24,4 @@ app.include_router(session_routes.router)
 
 @app.get("/")
 def root():
-    return {"message": "FitTrack API is running!"}
+    return {"message": "FitTrack BI API is running"}

@@ -229,13 +229,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
 
     setState(() => _saving = true);
-<<<<<<< HEAD
-
-    try {
-      await ApiService.updateProfile(widget.userId, _nameCtrl.text.trim());
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('name', _nameCtrl.text.trim());
-=======
     try {
       await ApiService.updateProfile(
         userId: widget.userId,
@@ -273,16 +266,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (_fitnessGoal != null) {
         await prefs.setString('fitness_goal', _fitnessGoal!);
       }
->>>>>>> f60865bae93d7e06df979d50693cf076ea67fe29
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-<<<<<<< HEAD
-            content: Text('Profile updated successfully'),
-=======
             content: Text('Profile updated!'),
->>>>>>> f60865bae93d7e06df979d50693cf076ea67fe29
             backgroundColor: Color(0xFF1D9E75),
           ),
         );
@@ -291,11 +279,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-<<<<<<< HEAD
-          SnackBar(content: Text('Failed to update: $e')),
-=======
           SnackBar(content: Text('Error: $e')),
->>>>>>> f60865bae93d7e06df979d50693cf076ea67fe29
         );
       }
     } finally {
@@ -395,22 +379,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
             _fieldLabel('Weight (kg)'),
             TextField(
-<<<<<<< HEAD
-              controller: _emailCtrl,
-              enabled: false,
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.email_outlined),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                filled: true,
-                fillColor: Colors.grey.shade100,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Email cannot be changed for security reasons',
-              style: TextStyle(fontSize: 11, color: Colors.grey[500]),
-=======
               controller: _weightCtrl,
               keyboardType: TextInputType.number,
               decoration: _inputDecoration('e.g. 60',
@@ -474,7 +442,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
               ))
                   .toList(),
->>>>>>> f60865bae93d7e06df979d50693cf076ea67fe29
             ),
             const SizedBox(height: 24),
 
@@ -548,15 +515,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ? const SizedBox(
                     width: 20,
                     height: 20,
-<<<<<<< HEAD
-                    child: CircularProgressIndicator(
-                        color: Colors.white, strokeWidth: 2))
-=======
                     child:
                     CircularProgressIndicator(
                         color: Colors.white,
                         strokeWidth: 2))
->>>>>>> f60865bae93d7e06df979d50693cf076ea67fe29
                     : const Text('Save Changes',
                     style: TextStyle(
                         fontSize: 16,

@@ -333,28 +333,4 @@ class ApiService {
       'accuracy_percent': 0.0,
     };
   }
-<<<<<<< HEAD
-  static Future<Map<String, dynamic>> getSummary(int userId) async {
-    final res = await http.get(
-      Uri.parse('${Constants.baseUrl}/sessions/summary/$userId'),
-      headers: _headers,
-    );
-    if (res.statusCode == 200) {
-      return jsonDecode(res.body);
-    }
-    throw Exception('Failed to load summary');
-  }
-  static Future<void> updateProfile(int userId, String name) async {
-    final res = await http.put(
-      Uri.parse('${Constants.baseUrl}/auth/update-profile'),
-      headers: _headers,
-      body: jsonEncode({'user_id': userId, 'name': name}),
-    );
-    if (res.statusCode != 200) {
-      throw Exception('Failed to update profile');
-    }
-  }
 }
-=======
-}
->>>>>>> f60865bae93d7e06df979d50693cf076ea67fe29

@@ -35,8 +35,7 @@ class AboutScreen extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             color: Colors.white)),
                     Text('Version 1.0.0  •  IIUI 2025',
-                        style:
-                        TextStyle(color: Colors.white70, fontSize: 12)),
+                        style: TextStyle(color: Colors.white70, fontSize: 12)),
                   ],
                 ),
               ),
@@ -49,69 +48,25 @@ class AboutScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _card(
-                    title: 'Our Mission',
+                    title: 'What is FitTrack BI?',
                     child: const Text(
-                      'FitTrack BI makes professional fitness coaching accessible to everyone. Using AI-powered posture detection and real-time feedback, we help users exercise safely and effectively from home — no personal trainer required.',
+                      'We built FitTrack BI as our final year project at IIUI. The idea was simple — most people can\'t afford a personal trainer, but that shouldn\'t stop them from working out correctly. So we used AI to do the coaching: it watches your form, counts your reps, and tells you what to fix in real time.',
                       style: TextStyle(
                           fontSize: 14,
                           color: Color(0xFF555555),
                           height: 1.6),
                     ),
                   ),
-                  // const SizedBox(height: 14),
-                  // const SizedBox(height: 14),
-                  //
                   const SizedBox(height: 14),
                   _card(
-                    title: 'Tech Stack',
-                    child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        'Flutter',
-                        'FastAPI',
-                        'MediaPipe',
-                        'OpenCV',
-                        'PostgreSQL',
-                        'Power BI',
-                        'Python',
-                      ]
-                          .map((t) => Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1D9E75)
-                              .withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: const Color(0xFF1D9E75)
-                                .withOpacity(0.3),
-                          ),
-                        ),
-                        child: Text(t,
-                            style: const TextStyle(
-                                color: Color(0xFF0F6E56),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600)),
-                      ))
-                          .toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  _card(
-                    title: 'Key Features',
+                    title: 'What it can do',
                     child: Column(
                       children: [
-                        _featureRow('🤖',
-                            'AI-powered real-time posture detection'),
-                        _featureRow(
-                            '🔢', 'Automatic repetition counting'),
-                        _featureRow('📊',
-                            'Power BI progress dashboards'),
-                        _featureRow(
-                            '🔐', 'Secure JWT authentication'),
-                        _featureRow('📱',
-                            'Cross-platform Flutter web app'),
+                        _featureRow('🤖', 'Detects your posture in real time using your camera'),
+                        _featureRow('🔢', 'Counts reps automatically — no manual logging'),
+                        _featureRow('📊', 'Shows your progress through visual dashboards'),
+                        _featureRow('🔐', 'Keeps your data secure with JWT authentication'),
+                        _featureRow('📱', 'Works on Android and the web'),
                       ],
                     ),
                   ),
@@ -119,8 +74,7 @@ class AboutScreen extends StatelessWidget {
                   Center(
                     child: Text(
                       '© 2025 FitTrack BI • IIUI',
-                      style: TextStyle(
-                          color: Colors.grey[400], fontSize: 12),
+                      style: TextStyle(color: Colors.grey[400], fontSize: 12),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -157,41 +111,6 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
-  Widget _teamCard(String initial, String name, String role) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF7FBF9),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFFE8F5EE)),
-        ),
-        child: Column(
-          children: [
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: const Color(0xFF1D9E75),
-              child: Text(initial,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold)),
-            ),
-            const SizedBox(height: 8),
-            Text(name,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    fontWeight: FontWeight.bold, fontSize: 13)),
-            const SizedBox(height: 2),
-            Text(role,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    color: Colors.grey, fontSize: 11)),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _featureRow(String emoji, String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -199,9 +118,11 @@ class AboutScreen extends StatelessWidget {
         children: [
           Text(emoji, style: const TextStyle(fontSize: 18)),
           const SizedBox(width: 10),
-          Text(text,
-              style: const TextStyle(
-                  fontSize: 13, color: Color(0xFF444444))),
+          Expanded(
+            child: Text(text,
+                style: const TextStyle(
+                    fontSize: 13, color: Color(0xFF444444))),
+          ),
         ],
       ),
     );

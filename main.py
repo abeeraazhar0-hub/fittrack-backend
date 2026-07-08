@@ -4,6 +4,7 @@ from database import engine
 import models
 from routes import (auth_routes, exercise_routes,
                     analyze_routes, session_routes)
+from admin import router as admin_router
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -21,7 +22,7 @@ app.include_router(auth_routes.router)
 app.include_router(exercise_routes.router)
 app.include_router(analyze_routes.router)
 app.include_router(session_routes.router)
-
+app.include_router(admin_router)
 @app.get("/")
 def root():
     return {"message": "FitTrack BI API is running"}

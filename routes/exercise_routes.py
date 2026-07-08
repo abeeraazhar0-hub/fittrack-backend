@@ -7,7 +7,11 @@ router = APIRouter(prefix="/exercises", tags=["exercises"])
 
 @router.get("/")
 def get_exercises(db: Session = Depends(get_db)):
-    exercises = db.query(Exercise).all()
+    exercises =(
+     db.query(Exercise)
+    .filter(Exercise.is_active == True)
+    .all()
+    )
     return [
         {
             "exercise_id": e.id,

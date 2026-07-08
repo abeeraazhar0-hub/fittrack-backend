@@ -39,3 +39,19 @@ class AnalyzeRequest(BaseModel):
     frame_base64: str
     exercise_id: int
     session_id: int
+class AdminCreateUserRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+    role: Optional[str] = "user"
+
+
+class AdminUpdateUserRequest(BaseModel):
+    name: Optional[str] = None
+    email: Optional[str] = None
+    age: Optional[int] = None
+    height: Optional[float] = None
+    weight: Optional[float] = None
+    gender: Optional[str] = None
+    fitness_goal: Optional[str] = None
+    role: Optional[str] = None

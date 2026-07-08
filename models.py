@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from database import Base
+from sqlalchemy import Boolean
 
 class User(Base):
     __tablename__ = "users"
@@ -14,7 +15,11 @@ class User(Base):
     weight = Column(Float, nullable=True)
     gender = Column(String, nullable=True)
     fitness_goal = Column(String, nullable=True)
+    failed_attempts = Column(Integer, default=0)
+    locked_until = Column(DateTime, nullable=True)
+    role = Column(String, default="user")
     sessions = relationship("WorkoutSession", back_populates="user")
+
 
 class ExerciseCategory(Base):
     __tablename__ = "exercise_categories"
@@ -29,6 +34,7 @@ class Exercise(Base):
     name = Column(String)
     description = Column(String)
     category_id = Column(Integer, ForeignKey("exercise_categories.id"))
+    is_active = Column(Boolean, default=True)
     category = relationship("ExerciseCategory", back_populates="exercises")
 
 class WorkoutSession(Base):

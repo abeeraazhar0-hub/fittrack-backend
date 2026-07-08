@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
+from models import WorkoutSession, Exercise, User
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from database import get_db
-from models import WorkoutSession, Exercise
 from schemas import StartSessionRequest, EndSessionRequest
 from datetime import datetime
 from ai.pose_analyzer import rep_state
@@ -88,3 +88,61 @@ def get_summary(user_id: int, db: Session = Depends(get_db)):
         "reps_by_exercise": reps_by_exercise,
         "sessions_by_exercise": count_by_exercise
     }
+@router.get("/admin-summary")
+def get_admin_summary(db: Session = Depends(get_db)):
+
+        sessions = db.query(WorkoutSession).filter(
+            WorkoutSession.end_time != None
+        ).all()
+
+        weekly_sessions = {
+            "Mon": 0,
+            "Tue": 0,
+            "Wed": 0,
+            "Thu": 0,
+            "Fri": 0,
+            "Sat": 0,
+            "Sun": 0,
+        }
+
+        days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+        for session in sessions:
+            day = days[session.start_time.weekday()]
+            weekly_sessions[day] += 1
+
+        total_users = db.query(User).count()
+        total_sessions = len(sessions)
+
+        avg_accuracy = round(
+            sum(s.accuracy_percent or 0 for s in sessions) / total_sessions, 1
+        ) if total_sessions > 0 else 0.0
+
+        active_exercises = db.query(Exercise).filter(
+            Exercise.is_active == True
+        ).count()
+
+        reps_by_exercise = {}
+        sessions_by_exercise = {}
+
+        for session in sessions:
+            name = session.exercise.name if session.exercise else "Unknown"
+
+            reps_by_exercise[name] = (
+                reps_by_exercise.get(name, 0) +
+                (session.total_reps or 0)
+            )
+
+            sessions_by_exercise[name] = (
+                sessions_by_exercise.get(name, 0) + 1
+            )
+
+        return {
+            "total_users": total_users,
+            "total_sessions": total_sessions,
+            "average_accuracy": avg_accuracy,
+            "active_exercises": active_exercises,
+            "reps_by_exercise": reps_by_exercise,
+            "sessions_by_exercise": sessions_by_exercise,
+            "weekly_sessions": weekly_sessions,
+        }

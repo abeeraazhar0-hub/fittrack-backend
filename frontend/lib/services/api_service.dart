@@ -92,7 +92,6 @@ class ApiService {
     double? height,
     double? weight,
     String? gender,
-    String? fitnessGoal,
   }) async {
     final body = <String, dynamic>{};
     if (name != null) body['name'] = name;
@@ -100,7 +99,6 @@ class ApiService {
     if (height != null) body['height'] = height;
     if (weight != null) body['weight'] = weight;
     if (gender != null) body['gender'] = gender;
-    if (fitnessGoal != null) body['fitness_goal'] = fitnessGoal;
 
     final res = await http.put(
       Uri.parse('${Constants.baseUrl}/auth/profile/$userId'),

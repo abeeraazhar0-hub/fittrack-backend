@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-
 # ---------------- REGISTER ---------------- #
 
 @router.post("/register", status_code=201)
@@ -45,7 +44,6 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
         "token": token
     }
 
-
 # ---------------- LOGIN ---------------- #
 
 @router.post("/login")
@@ -75,13 +73,13 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
         user.failed_attempts = (user.failed_attempts or 0) + 1
 
         if user.failed_attempts >= 5:
-            user.locked_until = datetime.utcnow() + timedelta(minutes=30)
+            user.locked_until = datetime.utcnow() + timedelta(minutes=5)
             user.failed_attempts = 0
             db.commit()
 
             raise HTTPException(
                 status_code=403,
-                detail="Too many failed attempts. Account locked for 30 minutes"
+                detail="Too many failed attempts. Account locked for 5 minutes"
             )
 
         db.commit()
@@ -112,7 +110,6 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
         "token": token
     }
 
-
 # ---------------- GET PROFILE ---------------- #
 
 @router.get("/profile/{user_id}")
@@ -133,7 +130,6 @@ def get_profile(user_id: int, db: Session = Depends(get_db)):
         "height": user.height,
         "weight": user.weight,
         "gender": user.gender,
-        "fitness_goal": user.fitness_goal
     }
 
 
@@ -169,9 +165,6 @@ def update_profile(
     if req.gender is not None:
         user.gender = req.gender
 
-    if req.fitness_goal is not None:
-        user.fitness_goal = req.fitness_goal
-
     db.commit()
     db.refresh(user)
 
@@ -183,5 +176,4 @@ def update_profile(
         "height": user.height,
         "weight": user.weight,
         "gender": user.gender,
-        "fitness_goal": user.fitness_goal
     }

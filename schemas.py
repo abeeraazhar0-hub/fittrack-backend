@@ -26,7 +26,6 @@ class UpdateProfileRequest(BaseModel):
     height: Optional[float] = None
     weight: Optional[float] = None
     gender: Optional[str] = None
-    fitness_goal: Optional[str] = None
 
 class StartSessionRequest(BaseModel):
     user_id: int
@@ -53,5 +52,4 @@ class AdminUpdateUserRequest(BaseModel):
     height: Optional[float] = None
     weight: Optional[float] = None
     gender: Optional[str] = None
-    fitness_goal: Optional[str] = None
     role: Optional[str] = None

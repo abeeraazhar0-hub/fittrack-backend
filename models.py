@@ -14,7 +14,6 @@ class User(Base):
     height = Column(Float, nullable=True)
     weight = Column(Float, nullable=True)
     gender = Column(String, nullable=True)
-    fitness_goal = Column(String, nullable=True)
     failed_attempts = Column(Integer, default=0)
     locked_until = Column(DateTime, nullable=True)
     role = Column(String, default="user")
